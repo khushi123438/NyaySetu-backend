@@ -20,9 +20,9 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// ❌ REMOVED: app.use(express.static(path.join(__dirname, '..'))); 
+// app.use(express.static(path.join(__dirname, '..'))); // REMOVED
 
-const uploadsDir = path.join(__dirname, '..', 'uploads');
+const uploadsDir = path.join(__dirname, 'uploads'); // '..' hata diya
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -144,14 +144,16 @@ app.get('/advocates', (req, res) => {
   }
 });
 
-// ✅ MODIFIED: app.get('*') ko app.get('/') se badal diya gaya
+// ✅ FINAL PATH FIX: '/index.html' को सीधे रूट से सर्व करना
 app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: path.join(__dirname, '..') });
+    res.sendFile('index.html', { root: path.join(__dirname) });
 });
 
-// Agar koi aur unknown route aaye toh 404 error de
+
+// Fallback 404 (जो यह सुनिश्चित करता है कि API रूट्स ठीक से काम कर रहे हैं)
 app.use((req, res) => {
     res.status(404).send('404 Not Found - Check your API routes.');
 });
+
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
