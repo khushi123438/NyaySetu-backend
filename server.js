@@ -20,7 +20,7 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-app.use(express.static(path.join(__dirname, '..')));
+// ❌ REMOVED: app.use(express.static(path.join(__dirname, '..'))); 
 
 const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
@@ -144,9 +144,14 @@ app.get('/advocates', (req, res) => {
   }
 });
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'index.html'));
+// ✅ MODIFIED: app.get('*') ko app.get('/') se badal diya gaya
+app.get('/', (req, res) => {
+    res.sendFile('index.html', { root: path.join(__dirname, '..') });
 });
 
+// Agar koi aur unknown route aaye toh 404 error de
+app.use((req, res) => {
+    res.status(404).send('404 Not Found - Check your API routes.');
+});
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
