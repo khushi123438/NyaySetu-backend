@@ -20,10 +20,9 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// ✅ STATIC FILES FIX: server.js se ek level upar (..) dekho, jahan index.html hai.
+// 1. STATIC FILES: server.js से एक लेवल ऊपर (..) देखो।
 app.use(express.static(path.join(__dirname, '..'))); 
 
-// uploadsDir ka path bhi server.js se ek level upar (..) hona chahiye
 const uploadsDir = path.join(__dirname, '..', 'uploads'); 
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
@@ -146,7 +145,10 @@ app.get('/advocates', (req, res) => {
   }
 });
 
-// Yahan koi app.get('/') ya app.get('*') ki zaroorat nahi hai.
-// express.static khud 'index.html' ko root '/' par serve kar dega.
+// 2. CATCH-ALL ROUTE: Yeh / (root) aur client-side routes (e.g., /about) ko index.html serve karega.
+app.get('*', (req, res) => {
+    // Yehi front-end ki main file serve karega.
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
