@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
-const session = require =('express-session');
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
