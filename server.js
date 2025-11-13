@@ -20,9 +20,10 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// app.use(express.static(path.join(__dirname, '..'))); // REMOVED
+// ✅ FINAL STATIC FIX: Assuming index.html is in the same folder as server.js (i.e., root)
+app.use(express.static(path.join(__dirname))); 
 
-const uploadsDir = path.join(__dirname, 'uploads'); // '..' hata diya
+const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -144,16 +145,7 @@ app.get('/advocates', (req, res) => {
   }
 });
 
-// ✅ FINAL PATH FIX: '/index.html' को सीधे रूट से सर्व करना
-app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: path.join(__dirname) });
-});
-
-
-// Fallback 404 (जो यह सुनिश्चित करता है कि API रूट्स ठीक से काम कर रहे हैं)
-app.use((req, res) => {
-    res.status(404).send('404 Not Found - Check your API routes.');
-});
-
+// app.get('/') route hata diya
+// app.use((req, res) => { ... }) bhi hata diya
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
