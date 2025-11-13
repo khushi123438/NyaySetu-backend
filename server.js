@@ -20,10 +20,11 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// ✅ FINAL FIX: 'server.js' se ek level upar (..) dekho static files ke liye
+// ✅ STATIC FILES FIX: server.js se ek level upar (..) dekho, jahan index.html hai.
 app.use(express.static(path.join(__dirname, '..'))); 
 
-const uploadsDir = path.join(__dirname, '..', 'uploads'); // uploads path bhi '..' se hona chahiye
+// uploadsDir ka path bhi server.js se ek level upar (..) hona chahiye
+const uploadsDir = path.join(__dirname, '..', 'uploads'); 
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -145,7 +146,7 @@ app.get('/advocates', (req, res) => {
   }
 });
 
-// app.get('/') route hata diya
-// app.use((req, res) => { ... }) bhi hata diya
+// Yahan koi app.get('/') ya app.get('*') ki zaroorat nahi hai.
+// express.static khud 'index.html' ko root '/' par serve kar dega.
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
