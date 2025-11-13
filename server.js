@@ -20,10 +20,10 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// ✅ FINAL STATIC FIX: Assuming index.html is in the same folder as server.js (i.e., root)
-app.use(express.static(path.join(__dirname))); 
+// ✅ FINAL FIX: 'server.js' se ek level upar (..) dekho static files ke liye
+app.use(express.static(path.join(__dirname, '..'))); 
 
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = path.join(__dirname, '..', 'uploads'); // uploads path bhi '..' se hona chahiye
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 const storage = multer.diskStorage({
