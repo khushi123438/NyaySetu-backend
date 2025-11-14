@@ -10,7 +10,7 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// ================= MIDDLEWARE =================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,7 +21,7 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// Uploads folder
+// ================= UPLOADS FOLDER =================
 const uploadsDir = path.join(__dirname, 'uploads'); 
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
@@ -31,7 +31,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Users file
+// ================= USERS FILE =================
 const USERS_FILE = path.join(__dirname, 'users.json');
 function readUsers() {
   try {
@@ -43,6 +43,11 @@ function readUsers() {
 function writeUsers(users) {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
 }
+
+// ================= ROOT ROUTE =================
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
 
 // ================= API ROUTES =================
 
