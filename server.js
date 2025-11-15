@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: [
        "http://localhost:3000",
-      "https://nyaysetu-info.netlify.app"
+      "https://nyaysetu-fr.netlify.app"
     ],
     credentials: true,
   })
