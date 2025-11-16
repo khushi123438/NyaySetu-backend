@@ -16,14 +16,20 @@ const fetch = (...args) =>
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ================= CORS (Netlify Compatible) =================
+// ================= CORS =================
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://nyaysetu-fr.netlify.app"
+];
+
 app.use(
   cors({
-    origin: [
-       "http://localhost:3000",
-      "https://nyaysetu-fr.netlify.app"
-    ],
-    credentials: true,
+    origin: (origin, callback) => {
+      // allow requests with no origin (like Postman)
+      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+      else callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true
   })
 );
 
@@ -37,24 +43,23 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true, // ⭐ for Render + HTTPS
+      secure: process.env.NODE_ENV === "production", // only HTTPS in prod
       httpOnly: true,
-      sameSite: "none", // ⭐ required for Netlify ↔ Render cookies
-      maxAge: 24 * 60 * 60 * 1000,
-    },
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Netlify ↔ Render
+      maxAge: 24 * 60 * 60 * 1000
+    }
   })
 );
 
 // ================= STATIC UPLOADS FOLDER =================
 const uploadsDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-app.use("/uploads", express.static(uploadsDir)); 
+app.use("/uploads", express.static(uploadsDir));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadsDir),
   filename: (req, file, cb) =>
-    cb(null, Date.now() + "-" + file.originalname.replace(/\s+/g, "_")),
+    cb(null, Date.now() + "-" + file.originalname.replace(/\s+/g, "_"))
 });
 const upload = multer({ storage });
 
@@ -75,21 +80,19 @@ function writeUsers(users) {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 }
 
-// ================= ROOT ==========================
+// ================= ROOT =================
 app.get("/", (req, res) => {
   res.send("NyayaSetu Backend Running Successfully ✔");
 });
 
-// ================= NEWS API ======================
+// ================= NEWS API =================
 const NEWS_API_KEY = process.env.NEWS_API_KEY;
 
 app.get("/news", async (req, res) => {
   try {
     const apiURL = `https://newsapi.org/v2/top-headlines?country=in&category=general&apiKey=${NEWS_API_KEY}`;
-
     const response = await fetch(apiURL);
     const data = await response.json();
-
     res.json(data);
   } catch (error) {
     console.error("News fetch error:", error);
@@ -97,7 +100,7 @@ app.get("/news", async (req, res) => {
   }
 });
 
-// ================= SIGNUP ======================
+// ================= SIGNUP =================
 app.post("/signup", upload.single("photo"), (req, res) => {
   try {
     const users = readUsers();
@@ -121,7 +124,7 @@ app.post("/signup", upload.single("photo"), (req, res) => {
       barid: body.barid || "",
       specialization: body.specialization || "",
       experience: body.experience || "",
-      image: req.file ? `/uploads/${req.file.filename}` : "",
+      image: req.file ? `/uploads/${req.file.filename}` : ""
     };
 
     users.push(newUser);
@@ -132,7 +135,7 @@ app.post("/signup", upload.single("photo"), (req, res) => {
 
     res.json({
       success: true,
-      user: { email: newUser.email, fullname: newUser.fullname },
+      user: { email: newUser.email, fullname: newUser.fullname }
     });
   } catch (error) {
     console.error("Signup error:", error);
@@ -140,7 +143,7 @@ app.post("/signup", upload.single("photo"), (req, res) => {
   }
 });
 
-// ================= LOGIN ======================
+// ================= LOGIN =================
 app.post("/login", (req, res) => {
   try {
     const users = readUsers();
@@ -159,7 +162,7 @@ app.post("/login", (req, res) => {
 
     res.json({
       success: true,
-      user: { email: user.email, fullname: user.fullname },
+      user: { email: user.email, fullname: user.fullname }
     });
   } catch (error) {
     console.log("Login error:", error);
@@ -167,20 +170,20 @@ app.post("/login", (req, res) => {
   }
 });
 
-// ================= CHECK SESSION =====================
+// ================= CHECK SESSION =================
 app.get("/session", (req, res) => {
   res.json({
     loggedIn: !!req.session.loggedIn,
-    email: req.session.email || null,
+    email: req.session.email || null
   });
 });
 
-// ================= LOGOUT ===========================
+// ================= LOGOUT =================
 app.get("/logout", (req, res) => {
   req.session.destroy(() => res.json({ success: true }));
 });
 
-// ================= ADVOCATES ========================
+// ================= ADVOCATES =================
 app.get("/advocates", (req, res) => {
   try {
     const users = readUsers();
@@ -194,7 +197,7 @@ app.get("/advocates", (req, res) => {
         city: u.city,
         state: u.state,
         barid: u.barid,
-        image: u.image,
+        image: u.image
       }));
 
     res.json(advocates);
@@ -204,7 +207,7 @@ app.get("/advocates", (req, res) => {
   }
 });
 
-// ================= START SERVER =====================
+// ================= START SERVER =================
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
