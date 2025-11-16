@@ -17,10 +17,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ================= CORS =================
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://nyay-setu-frontend-nine.vercel.app/"
-];
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://nyaysetu-fr.netlify.app",
+    "https://nyay-setu-frontend-nine.vercel.app"   // <-- NEW VERCEL DOMAIN
+  ],
+  credentials: true,
+}));
 
 app.use(
   cors({
